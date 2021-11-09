@@ -13,6 +13,10 @@ scene.add( light );
 // global variables
 const start_position = 3;
 const end_position = -start_position;
+const text = document.querySelector(".text");
+const TIMIT_LIMIT = 10
+let gameState = "loading"
+let isLookingBackward = true
 
 
 
@@ -33,6 +37,10 @@ camera.position.z = 7;
 
 const loader = new THREE.GLTFLoader();
 
+function delay(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+
+}
 
 
 class Doll{
@@ -48,10 +56,21 @@ class Doll{
     lookBackward(){
         // this.doll.rotation.y = -3.15;
         gsap.to(this.doll.rotation, {y: -3.15, duration: .45})
+        setTimeout(() => isLookingBackward = true , 450)
         
     }
     lookForward(){
         gsap.to(this.doll.rotation, {y: 0, duration: .45})
+        setTimeout(() => isLookingBackward = false , 450)
+
+    }
+
+    async start(){
+        this.lookBackward()
+        await delay((Math.random() * 1000) + 1000)
+        this.lookForward()
+        await delay((Math.random() * 750) + 750)
+        this.start()
 
     }
 }
@@ -86,24 +105,67 @@ class Player{
     }
 
     stop(){
-        this.playerInfo.velocity = 0
+        // this.playerInfo.velocity = 0
+        gsap.to(this.playerInfo, {velocity: 0, duration: .1})
+    }
+
+    check(){
+        if(this.playerInfo.velocity > 0 && !isLookingBackward){
+            text.innerText = "you lose";
+            gameState = "over"
+        }
+        if(this.playerInfo.positionX < end_position){
+            text.innerText = "you Winw";
+
+            gameState = "over"
+
+        }
+
     }
 
     update(){
+        this.check()
         this.playerInfo.positionX -= this.playerInfo.velocity
         this.player.position.x = this.playerInfo.positionX
     }
 }
 
 const player = new Player();
-
 let doll = new Doll()
-setTimeout(() => {
-    doll.lookBackward();
-}, 1000);
+
+async function init(){
+    await delay(500)
+    text.innerText = "Starting in 3"
+    await delay(500)
+    text.innerText = "Starting in 2"
+    await delay(500)
+    text.innerText = "Starting in 1"
+    await delay(500)
+    text.innerText = "go!!!!!!!!!"
+    startGame()
+}
+
+function startGame(){
+    gameState = "started"
+    let progressBar = createCube({w: 5, h: .1, d: 1}, 0)
+    progressBar.position.y = 3.35
+    gsap.to(progressBar.scale, {x: 0, duration: TIMIT_LIMIT, ease: "none"})
+    doll.start()
+    setTimeout(() => {
+        if(gameState != "over"){
+            text.innerText = "you ran out of time";
+            gameState = "over";
+        }
+
+    }, TIMIT_LIMIT * 1000);
+}
+
+init()
+
 
 
 function animate() {
+    if(gameState == "over") return
 	renderer.render( scene, camera );
 
 	requestAnimationFrame( animate );
@@ -120,6 +182,7 @@ function onWinodwResize(){
 }
 
 window.addEventListener('keydown', (e) => {
+    if(gameState != "started") return 
     if(e.key == "ArrowUp"){
         player.run();
     }
