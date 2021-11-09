@@ -32,7 +32,9 @@ class Doll{
         });
     }
     lookBackward(){
-        this.doll.rotation.y = -3.15;
+        // this.doll.rotation.y = -3.15;
+        gsap.to(this.doll.rotation, {y: -3.15, duration: 1})
+        
     }
     lookForward(){
         this.doll.rotation.y = -0;
