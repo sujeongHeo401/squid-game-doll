@@ -85,6 +85,10 @@ class Player{
 
     }
 
+    stop(){
+        this.playerInfo.velocity = 0
+    }
+
     update(){
         this.playerInfo.positionX -= this.playerInfo.velocity
         this.player.position.x = this.playerInfo.positionX
@@ -114,3 +118,15 @@ function onWinodwResize(){
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+window.addEventListener('keydown', (e) => {
+    if(e.key == "ArrowUp"){
+        player.run();
+    }
+})
+
+window.addEventListener('keyup', (e) => {
+    if(e.key == "ArrowUp"){
+        player.stop();
+    }
+})
