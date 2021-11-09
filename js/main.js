@@ -5,18 +5,28 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+const light = new THREE.AmbientLight( 0xffffff ); // soft white light
+scene.add( light );
+
+// const geometry = new THREE.BoxGeometry();
+// const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+// const cube = new THREE.Mesh( geometry, material );
+// scene.add( cube );
 
 camera.position.z = 7;
 
+const loader = new THREE.GLTFLoader();
+
+loader.load("../models/scene.gltf", function(gltf){
+    scene.add( gltf.scene );
+    gltf.scene.scale.set(.4, .4, .4)
+    // animate();
+
+});
 
 function animate() {
 	renderer.render( scene, camera );
 
-    cube.rotation.z += 0.05;
 	requestAnimationFrame( animate );
 }
 animate();
